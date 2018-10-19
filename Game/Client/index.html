@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Battle City TEC</title>
+
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+        <link href="css/bootstrap.css" rel="stylesheet">
+        <link href="css/mdb.css" rel="stylesheet">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/6.11.5/sweetalert2.css">
+    </head>
+    <br>
+    <body style="background: linear-gradient(#F7BE81,#A4A4A4,#A4A4A4,#F7BE81); border-color: red" >
+
+    <div hidden>
+        <img id="empty" src="img/empty.png">
+
+        <img id="Objetivo1" src="img/objetivo1.jpg">
+        <img id="Objetivo2" src="img/objetivo2.jpg">
+        <img id="bala" src="img/bala.png">
+        <img id="borde" src="img/steel.png">
+        <img id="bloque" src="img/block.png">
+        <img id="heroeUp" src="img/tankUp.png">
+        <img id="heroeDown" src="img/tankDown.png">
+        <img id="heroeLeft" src="img/tankLeft.png">
+        <img id="heroeRight" src="img/tankRight.png">
+
+        <img id="enemy1Up" src="img/enemy1Up.png">
+        <img id="enemy1Down" src="img/enemy1Down.png">
+        <img id="enemy1Left" src="img/enemy1Left.png">
+        <img id="enemy1Right" src="img/enemy1Right.png">
+
+        <img id="enemy3Up" src="img/enemy2Up.png">
+        <img id="enemy3Down" src="img/enemy2Down.png">
+        <img id="enemy3Left" src="img/enemy2Left.png">
+        <img id="enemy3Right" src="img/enemy2Right.png">
+
+        <img id="enemy2Up" src="img/enemy3Up.png">
+        <img id="enemy2Down" src="img/enemy3Down.png">
+        <img id="enemy2Left" src="img/enemy3Left.png">
+        <img id="enemy2Right" src="img/enemy3Right.png">
+    </div>
+
+    <!--VENTANA DEL JUEGO-->
+    <div class="container" >
+        <div class="row">
+            <div class="col-xs-2">
+                <div class="container-fluid">
+                    <br> <br>  <br>  <br> <br>  <br> <br> <br> <br> <br>
+                    <label><b>Tankes Enemigos: </b><span id="txtTanksEnemy">3</span></label><br>
+                    <label><b>Objetivos Restantes: </b><span id="txtObjetivos">2</span></label>
+                </div>
+            </div>
+            <div class="col-xs-10">
+                <div class="container">
+                    <div align=center>
+                        <canvas id="scene" width="705" height="705" style="background-color: black; margin: auto;">Su navegador no soporta canvas</canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--JQuery JS-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+    <!--Bootstrap JS-->
+    <script type="text/javascript" src="librerias/popper.min.js"></script>
+    <script type="text/javascript" src="librerias/bootstrap.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/6.11.5/sweetalert2.all.js"></script>
+	
+	
+	<script src="/socket.io/socket.io.js"></script>
+	<script src="controller.js"></script>
+
+    </body>
+</html>
