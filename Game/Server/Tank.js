@@ -1,3 +1,5 @@
+const index = require('./index');
+const espacioLibre = require('./espacioLibre');
 
 class Tank{
     constructor(ID,parteLogica,x,y,o) {
@@ -51,20 +53,20 @@ class Tank{
     run(){
         let opciones= 0;//CONTADOR QUE DEFINE CUANTAS OPCIONES DISPONIBLES TENGO PARA ESCOGER
         let camDisponibles = [];//TENDRÁ LAS POSIBLES VIAS PARA DONDE SE PODRÁ DESPLAZAR EL TANK
-        if(getObject(this._posX,this._posY-1).espacioLibre()){ //ARRIBA
-            camDisponibles.push(ARRIBA);
+        if(index.getObject(this._posX,this._posY-1).espacioLibre()){ //ARRIBA
+            camDisponibles.push(index.directions[0]);
             opciones++;
         }
-        if(getObject(this._posX,this._posY+1).espacioLibre()){//ABAJO
-            camDisponibles.push(ABAJO);
+        if(index.getObject(this._posX,this._posY+1).espacioLibre()){//ABAJO
+            camDisponibles.push(index.directions[1]);
             opciones++;
         }
-        if(getObject(this._posX-1,this._posY).espacioLibre()){//IZQUIERDA
-            camDisponibles.push(IZQUIERDA);
+        if(index.getObject(this._posX-1,this._posY).espacioLibre()){//IZQUIERDA
+            camDisponibles.push(index.directions[2]);
             opciones++;
         }
-        if(getObject(this._posX+1,this._posY).espacioLibre()){//DERECHA
-            camDisponibles.push(DERECHA);
+        if(index.getObject(this._posX+1,this._posY).espacioLibre()){//DERECHA
+            camDisponibles.push(index.directions[3]);
             opciones++;
         }
         if(opciones !== 0){
@@ -74,29 +76,29 @@ class Tank{
     }
 
     moverTank(orientacion){
-        setObject(this._posX,this._posY,new espacioLibre(this._coordinador));
-        if(orientacion === ARRIBA){
-            this._orientacion = ARRIBA;
+        index.setObject(this._posX,this._posY,new espacioLibre(this._coordinador,index.directions[4]));
+        if(orientacion === index.directions[0]){
+            this._orientacion = index.directions[0];
             this._posY = this._posY-1;
         }
-        else if(orientacion === ABAJO){
-            this._orientacion = ABAJO;
+        else if(orientacion === index.directions[1]){
+            this._orientacion = index.directions[1];
             this._posY = this._posY+1;
         }
-        else if(orientacion === IZQUIERDA){
-            this._orientacion = IZQUIERDA;
+        else if(orientacion === index.directions[2]){
+            this._orientacion = index.directions[2];
             this._posX = this._posX-1;
         }
-        else if(orientacion === DERECHA){
-            this._orientacion = DERECHA;
+        else if(orientacion === index.directions[3]){
+            this._orientacion = index.directions[3];
             this._posX = this._posX+1;
         }
-        setObject(this._posX,this._posY,this);
+        index.setObject(this._posX,this._posY,this);
     }
     dispararEnemy(){
-        if(this._posY === getHeroe()._posY || this._posX === getHeroe()._posX){
-            if(buscarHeroe(this._orientacion,this._posX,this._posY)){
-                dispararEnemigo(this._posX,this._posY,this._ID,this._orientacion);
+        if(this._posY === index.getUserHeroe().getPosY || this._posX === index.getUserHeroe().getPosX){
+            if(index.SearchUsers(this._orientacion,this._posX,this._posY)){
+                index.dispararEnemigo(this._posX,this._posY,this._ID,this._orientacion);
             }
         }
     }

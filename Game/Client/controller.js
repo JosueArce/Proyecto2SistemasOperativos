@@ -135,6 +135,7 @@ function PaintMatrix(_ServerMatrix)
                 context.drawImage(document.getElementById('Objetivo2'), _ServerMatrix[posX].Positions[posY].x*47, _ServerMatrix[posX].Positions[posY].y*47);
             }
             else if(_ServerMatrix[posX].ID === HEROE){
+                console.log(_ServerMatrix[posX].Positions[posY]);
                 switch (_ServerMatrix[posX].Positions[posY].Orientacion){
                     case 2://IZQUIERDA
                         context.drawImage(document.getElementById('heroeLeft'), _ServerMatrix[posX].Positions[posY].x*47, _ServerMatrix[posX].Positions[posY].y*47);
@@ -223,24 +224,17 @@ function PaintObject(data,sprite)
 socket.on('FirstConnection',function(data) {
 	
 	_PLAYER_ID = data.PLAYER_ID;
-	PaintMatrix(data.CURRENT_MATRIX);
 	//inicio.play();
 });
 
-// When user gets kill or match ends this will be executed on the server
-// So then, match should stop the user must get notified about it
-socket.on('PlayerDied', function(data) {
-	swal(
-	    'RIP!',
-	    'Better luck next!',
-	    'error'
-	);
-	PaintObject(data,'empty');
-});
 
 // If a user disconnects by some reason this event will be  triggered
-socket.on('DisconnectUser',function(data){
-	PaintObject(data,'empty');
+socket.on('UserDisconnected',function(data){
+	swal(
+        'RIP!',
+        'Better luck next!',
+        'error'
+    );
 });
 
 // Runs everytime server detects a new change in the main logic matrix
@@ -248,8 +242,15 @@ socket.on('GameChange',function(data){
 	PaintMatrix(data.CURRENT_MATRIX);
 });
 
+socket.on('GameOver',function(data){
+    swal(
+        'RIP!',
+        'Better luck next!',
+        'error'
+    );
+});
 
-document.onkeydown = function (e) {console.log("entre");
+document.onkeydown = function (e) {
 	var action = {orientacion:-1,shoot:false}
     switch (e.keyCode) {
         case 32://BARRA ESPACIADORA
@@ -268,7 +269,7 @@ document.onkeydown = function (e) {console.log("entre");
 				 action.orientacion = ABAJO;
             break;
     }
-    
+    console.log(_PLAYER_ID);
     socket.emit('PlayerMoved',{moveProperties : action, playerID: _PLAYER_ID});
 };
 

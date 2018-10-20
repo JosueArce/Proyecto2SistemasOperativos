@@ -1,12 +1,16 @@
+const index = require('./index');
+const espacioLibre = require('./espacioLibre');
+
 class tankHeroe{
-    constructor(x,y,parteLogica,HEROE){
+    constructor(x,y,parteLogica,HEROE, userid){
         this._posX = x;
         this._posY = y;
         this.coordinador = parteLogica;
         this._disparo = false; //DISPARÓ!
-        this._vidas = 1;
+        this._vidas = 3;
         this._orientacion = 0;//ARRIBA, VA CAMBIAR CONFORME SE MUEVE
         this._ID = HEROE;
+        this._UserID = userid;
     }
 
     get getID(){
@@ -35,6 +39,11 @@ class tankHeroe{
     }
     set changeBulletState(val){
         this._disparo = val;
+    }
+
+    get getUserID()
+    {
+        return this._UserID;
     }
 
     disparar(){
@@ -83,11 +92,11 @@ class tankHeroe{
     eliminar(){
         this._vidas--;
         if(this._vidas > 0){
-            disparoAHeroe.play();
-            setObject(this._posX,this._posY,new espacioLibre(this._coordinador));
+            //disparoAHeroe.play();
+            index.setObject(this._posX,this._posY,new espacioLibre(this._coordinador,index.directions[4]));
             this._posX = 7;this._posY = 13;
             this._orientacion = 0;
-            setObject(this._posX,this._posY,this);
+            index.setObject(this._posX,this._posY,this);
             document.getElementById("txtVidas").textContent = this._vidas;
             swal(
                 'Ouch!!',
@@ -96,8 +105,8 @@ class tankHeroe{
             );
         }
         else if(this._vidas === 0){
-            muerteHeroe.play();
-            terminarJuego(false);
+            //muerteHeroe.play();
+            terminarJuego(false,this._UserID);
         }
     }
     esDestructible(){
