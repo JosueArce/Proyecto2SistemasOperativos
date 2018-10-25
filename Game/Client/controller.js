@@ -303,7 +303,7 @@ document.onkeydown = function (e) {
             break;
     }
     if(action.shoot) socket.emit('PlayerShooted',{playerID:_PLAYER_ID});
-    else socket.emit('PlayerMoved',{moveProperties : action, playerID: _PLAYER_ID});
+    else if(action.orientacion !== -1) socket.emit('PlayerMoved',{moveProperties : action, playerID: _PLAYER_ID});
 };
 
 /*--------------------------------------------------------*/

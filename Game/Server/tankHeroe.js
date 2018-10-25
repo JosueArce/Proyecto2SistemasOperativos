@@ -7,7 +7,7 @@ class tankHeroe{
         this._posY = y;
         this.coordinador = parteLogica;
         this._disparo = false; //DISPARÓ!
-        this._vidas = 3;
+        this._vidas = 1;
         this._orientacion = 0;//ARRIBA, VA CAMBIAR CONFORME SE MUEVE
         this._ID = HEROE;
         this._UserID = userid;
@@ -59,7 +59,6 @@ class tankHeroe{
     eliminar(){
         this._vidas--;
         if(this._vidas > 0){
-            //disparoAHeroe.play();
             index.setObject(this._posX,this._posY,new espacioLibre(this._coordinador,index.directions[4]));
             this._posX = 7;this._posY = 13;
             this._orientacion = 0;
@@ -67,6 +66,7 @@ class tankHeroe{
         }
         else if(this._vidas === 0){
             //muerteHeroe.play();
+            console.log("asdadad");
             index.UserDied(this._UserID);
         }
     }
