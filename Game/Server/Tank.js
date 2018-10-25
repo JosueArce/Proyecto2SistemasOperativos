@@ -106,8 +106,7 @@ class Tank{
         {
             if(index.SearchUsers(this._orientacion,this._posX,this._posY))
             {
-                console.log(this._ID);
-                index.disparar(this._posX,this._posY,this._ID,this._orientacion);
+                index.dispararEnemigo(this._posX,this._posY,this._ID,this._orientacion);
             }
         }
     }

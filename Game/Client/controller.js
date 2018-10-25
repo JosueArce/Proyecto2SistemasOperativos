@@ -223,8 +223,6 @@ function PaintObject(data,sprite)
 socket.on('FirstConnection',function(data) {
 	
 	_PLAYER_ID = data.PLAYER_ID;
-	inicio.play();
-    juegoNormal.play();
 });
 
 
@@ -279,6 +277,9 @@ socket.on('PlaySound',function(data){
             break;
         case "disparoAHeroe":
             disparoAHeroe.play();
+            break;
+        case "juegoNormal":
+            juegoNormal.play();
             break;
     }
 });

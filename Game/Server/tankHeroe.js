@@ -49,7 +49,7 @@ class tankHeroe{
     disparar(){
         if(!this._disparo){
             //this.coordinador.ejecutarSonido("SHOOT");
-            index.disparar(this._posX,this._posY,BALAHEROE,this._orientacion);
+            index.dispararHeroe(this._posX,this._posY,BALAHEROE,this._orientacion);
             this._disparo = true;//SE DISPARÓ
             disparo.play();
         }
@@ -65,8 +65,6 @@ class tankHeroe{
             index.setObject(this._posX,this._posY,this);
         }
         else if(this._vidas === 0){
-            //muerteHeroe.play();
-            console.log("asdadad");
             index.UserDied(this._UserID);
         }
     }

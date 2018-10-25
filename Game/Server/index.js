@@ -53,7 +53,7 @@ var ARRIBA = 0; var ABAJO = 1; var IZQUIERDA = 2; var DERECHA = 3;
 // Threats
 var intervalo; var hiloEnemy1, hiloEnemy2y3, hiloBalasEnemy1;  var mainThread;
 var EnemyList2y3 = [], EnemyList1 = [], bulletList = []; var disparoEnemigo; 
-var refreshPantalla;
+var intervaloCreateEnemy;
 
 var heroe;//INSTANCIA DEL HEROE GLOBAL -- test
 var tankesEnemigos = [];//Lodge enemy instances
@@ -132,13 +132,13 @@ function CreateMatrix()
         posY = generarPosicionAleatoria();
         if(getObject(posX,posY).espacioLibre()){
             if(!usoEnemy1){
-                //setObject(posX,posY,new tankEnemy1(posX,posY,1,this,ENEMY1));
-                //EnemyList1.push(getObject(posX,posY));
+                setObject(posX,posY,new tankEnemy1(posX,posY,1,this,ENEMY1));
+                EnemyList1.push(getObject(posX,posY));
                 usoEnemy1=true;
             }
             else if(!usoEnemy2){
-                //setObject(posX,posY,new tankEnemy2(posX,posY,3,this,ENEMY2));
-                //EnemyList2y3.push(getObject(posX,posY));
+                setObject(posX,posY,new tankEnemy2(posX,posY,3,this,ENEMY2));
+                EnemyList2y3.push(getObject(posX,posY));
                 usoEnemy2=true;
             }
             else if(!usoEnemy3){
@@ -317,27 +317,6 @@ function getUserHeroe(userid) {
 	}
 }
 
-function dispararEnemigo(posX,posY,pertenece,orientacion) {
-    if(orientacion === ARRIBA){
-        posY--;
-    }
-    else if(orientacion === ABAJO){
-        posY++;
-    }
-    else if(orientacion === DERECHA){
-        posX++;
-    }
-    else if(orientacion === IZQUIERDA){
-        posX--;
-    }
-    if(getObject(posX,posY)._ID !== BLOQUENORMAL && getObject(posX,posY)._ID !== BORDE &&
-       getObject(posX,posY)._ID !== OBJETIVO1 && getObject(posX,posY)._ID !== OBJETIVO2 &&
-       getObject(posX,posY)._ID !== ENEMY1 && getObject(posX,posY)._ID !== ENEMY2 && getObject(posX,posY)._ID !== ENEMY3
-       && getObject(posX,posY)._ID !== EMPTYSPACE){
-        getObject(posX,posY).eliminar();
-    }
-}
-
 // Distribuite the positions depending of the object
 function TransformArrayToJSONAux(objectID)
 {
@@ -476,7 +455,7 @@ function getRandomUser() {
 }
 
 // Allows the user to shoot
-function disparar(posX,posY,pertenece,orientacion) {
+function dispararHeroe(posX,posY,pertenece,orientacion) {
     console.log(posX,posY,pertenece,orientacion);
     emitSound("disparoAHeroe");
     if (orientacion === ARRIBA) {
@@ -494,8 +473,7 @@ function disparar(posX,posY,pertenece,orientacion) {
             getObject(posX,posY-1)._ID === ENEMY2 ||
             getObject(posX,posY-1)._ID === ENEMY3 ||
             getObject(posX,posY-1)._ID === OBJETIVO1 ||
-            getObject(posX,posY-1)._ID === OBJETIVO2 ||
-            getObject(posX,posY-1)._ID === HEROE)
+            getObject(posX,posY-1)._ID === OBJETIVO2)
         {
             getObject(posX,posY-1).eliminar();
         }
@@ -519,8 +497,7 @@ function disparar(posX,posY,pertenece,orientacion) {
             getObject(posX,posY+1)._ID === ENEMY2 ||
             getObject(posX,posY+1)._ID === ENEMY3 ||
             getObject(posX,posY+1)._ID === OBJETIVO1 ||
-            getObject(posX,posY+1)._ID === OBJETIVO2 ||
-            getObject(posX,posY+1)._ID === HEROE)
+            getObject(posX,posY+1)._ID === OBJETIVO2)
         {
             getObject(posX,posY+1).eliminar();
         }
@@ -544,8 +521,7 @@ function disparar(posX,posY,pertenece,orientacion) {
             getObject(posX-1,posY)._ID === ENEMY2 ||
             getObject(posX-1,posY)._ID === ENEMY3 ||
             getObject(posX-1,posY)._ID === OBJETIVO1 ||
-            getObject(posX-1,posY)._ID === OBJETIVO2 ||
-            getObject(posX-1,posY)._ID === HEROE)
+            getObject(posX-1,posY)._ID === OBJETIVO2)
         {
             getObject(posX-1,posY).eliminar();
         }
@@ -569,8 +545,7 @@ function disparar(posX,posY,pertenece,orientacion) {
             getObject(posX+1,posY)._ID === ENEMY2 ||
             getObject(posX+1,posY)._ID === ENEMY3 ||
             getObject(posX+1,posY)._ID === OBJETIVO1 ||
-            getObject(posX+1,posY)._ID === OBJETIVO2 ||
-            getObject(posX+1,posY)._ID === HEROE)
+            getObject(posX+1,posY)._ID === OBJETIVO2)
         {
             getObject(posX+1,posY).eliminar();
         }
@@ -583,6 +558,28 @@ function disparar(posX,posY,pertenece,orientacion) {
     //GameChange = true;
 }
 
+// Allows the enemy to shoot
+function dispararEnemigo(posX,posY,pertenece,orientacion) {
+    if(orientacion === ARRIBA){
+        posY--;
+    }
+    else if(orientacion === ABAJO){
+        posY++;
+    }
+    else if(orientacion === DERECHA){
+        posX++;
+    }
+    else if(orientacion === IZQUIERDA){
+        posX--;
+    }
+    if(getObject(posX,posY)._ID !== BLOQUENORMAL && getObject(posX,posY)._ID !== BORDE &&
+       getObject(posX,posY)._ID !== OBJETIVO1 && getObject(posX,posY)._ID !== OBJETIVO2 &&
+       getObject(posX,posY)._ID !== ENEMY1 && getObject(posX,posY)._ID !== ENEMY2 && getObject(posX,posY)._ID !== ENEMY3
+       && getObject(posX,posY)._ID !== EMPTYSPACE){
+        getObject(posX,posY).eliminar();
+    }
+}
+
 function emitSound(sound)
 {
     io.sockets.emit("PlaySound",{sound:sound});
@@ -590,13 +587,13 @@ function emitSound(sound)
 
 function UserDied(userid)
 {
-    io.to(userid).emit('GameOver', { result : true});
     DeleteTank(userid);
+    io.to(userid).emit('GameOver', { result : true});
     emitSound("muerteHeroe");
     GameChanged = true;
 }
 
-
+/*--------------THREADS-----------------*/
 mainThread = setInterval(function(){
 	if(GameChanged)
     {
@@ -607,7 +604,7 @@ mainThread = setInterval(function(){
     {
         io.sockets.emit('GameOver',{result:true});
     }
-},1050);
+},1100);
 
 hiloEnemy1 = setInterval(function () {
     for(let i = 0; i < EnemyList1.length;i++){
@@ -616,7 +613,7 @@ hiloEnemy1 = setInterval(function () {
             EnemyList1[i].dispararEnemy(playersOnline);
         GameChanged = true;
     }
-},4010); // los enemigos se mueven y disparan cada 0.3 segundos
+},4000); // los enemigos se mueven y disparan cada 0.3 segundos
 
 hiloEnemy2y3 = setInterval(function () {
     for(let i = 0; i < EnemyList2y3.length;i++){
@@ -626,6 +623,9 @@ hiloEnemy2y3 = setInterval(function () {
         GameChanged = true;
     }
 },4500); 
+
+intervalo = setInterval(addNewEnemy, 15000); // actualiza enemigos cada 15 segundos
+/****************************************/
 
 /*--------------------------------------*/
 
@@ -640,6 +640,8 @@ io.on('connection', function(socket){
 
 		io.to(socket.id).emit('FirstConnection', { PLAYER_ID : socket.id});
 
+        emitSound("inicio"); emitSound("juegoNormal");
+
 		console.log(socket.id + ' has connected!' + " #: "+playersOnline.length);
 
         GameChanged = true;
@@ -651,7 +653,7 @@ io.on('connection', function(socket){
 
     socket.on('PlayerShooted',function(data){
         var instance = getUserHeroe(data.playerID);
-        disparar(instance.getPosX,instance.getPosY,BALAHEROE,instance.getOrientacion);
+        dispararHeroe(instance.getPosX,instance.getPosY,BALAHEROE,instance.getOrientacion);
     });
 
 	socket.on('disconnect',function(){
@@ -670,6 +672,7 @@ server.listen(5000,function(){
 	StartGame();
 });
 
+/*---------------EXPORTING PACKAGES--------------------------------------*/
 module.exports.getObject = getObject; module.exports.setObject = setObject; module.exports.getUserHeroe = getUserHeroe;
 module.exports.SearchUsers = SearchUsers; module.exports.dispararEnemigo = dispararEnemigo;
 module.exports.directions = [ARRIBA,ABAJO,IZQUIERDA,DERECHA,EMPTYSPACE,BORDE,BLOQUENORMAL];
@@ -677,5 +680,5 @@ module.exports.tankIDS = [ENEMY1,ENEMY2,ENEMY3,BALAHEROE,BALAENEMIGO,HEROE];
 module.exports.emitSound = emitSound; module.exports.GameChanged = GameChanged;
 module.exports.RemoveBulletsMatrix = RemoveBulletsMatrix; module.exports.borrarEnemigo = borrarEnemigo;
 module.exports.RestarObjetivos = RestarObjetivos; module.exports.UserDied = UserDied;
-module.exports.SearchUsers = SearchUsers; module.exports.disparar = disparar;
+module.exports.SearchUsers = SearchUsers; module.exports.dispararHeroe = dispararHeroe;
 /*--------------------------------------*/
