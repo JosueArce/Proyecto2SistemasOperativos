@@ -135,7 +135,6 @@ function PaintMatrix(_ServerMatrix)
                 context.drawImage(document.getElementById('Objetivo2'), _ServerMatrix[posX].Positions[posY].x*47, _ServerMatrix[posX].Positions[posY].y*47);
             }
             else if(_ServerMatrix[posX].ID === HEROE){
-                console.log(_ServerMatrix[posX].Positions[posY]);
                 switch (_ServerMatrix[posX].Positions[posY].Orientacion){
                     case 2://IZQUIERDA
                         context.drawImage(document.getElementById('heroeLeft'), _ServerMatrix[posX].Positions[posY].x*47, _ServerMatrix[posX].Positions[posY].y*47);
@@ -224,7 +223,8 @@ function PaintObject(data,sprite)
 socket.on('FirstConnection',function(data) {
 	
 	_PLAYER_ID = data.PLAYER_ID;
-	//inicio.play();
+	inicio.play();
+    juegoNormal.play();
 });
 
 
@@ -235,6 +235,7 @@ socket.on('UserDisconnected',function(data){
         'Better luck next!',
         'error'
     );
+    //juegoNormal.pause();
 });
 
 // Runs everytime server detects a new change in the main logic matrix
@@ -244,10 +245,42 @@ socket.on('GameChange',function(data){
 
 socket.on('GameOver',function(data){
     swal(
-        'RIP!',
-        'Better luck next!',
+        'Game is Over!!',
+        'Good bye!!',
         'error'
     );
+    //juegoNormal.pause();
+});
+
+
+socket.on('PlaySound',function(data){
+    switch(data.sound)
+    {
+        case "muerteHeroe":
+            muerteHeroe.play();
+            break;
+        case "balaPared":
+            balaPared.play();
+            break;
+        case "destruir":
+            destruir.play();
+            break;
+        case "muerteEnemy":
+            muerteEnemy.play();
+            break;
+        case "muerteObjeto":
+            muerteObjeto.play();
+            break;
+        case "game_over":
+            game_over.play();
+            break;
+        case "inicio":
+            inicio.play();
+            break;
+        case "disparoAHeroe":
+            disparoAHeroe.play();
+            break;
+    }
 });
 
 document.onkeydown = function (e) {
@@ -269,8 +302,8 @@ document.onkeydown = function (e) {
 				 action.orientacion = ABAJO;
             break;
     }
-    console.log(_PLAYER_ID);
-    socket.emit('PlayerMoved',{moveProperties : action, playerID: _PLAYER_ID});
+    if(action.shoot) socket.emit('PlayerShooted',{playerID:_PLAYER_ID});
+    else socket.emit('PlayerMoved',{moveProperties : action, playerID: _PLAYER_ID});
 };
 
 /*--------------------------------------------------------*/

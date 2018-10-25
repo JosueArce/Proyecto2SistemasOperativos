@@ -2,8 +2,9 @@
  * Created by Josue on 31/10/2017.
  * SOPORTA 3 BALAZOS DEL TANKE HEROE PERO SE MUEVE LENTO
  */
-
+const index = require('./index');
 const Tank = require('./Tank');
+ const espacioLibre = require('./espacioLibre');
 
 class tankEnemy2 extends Tank{
     constructor(x,y,vidaTotal,parteLogica,id){
@@ -28,9 +29,9 @@ class tankEnemy2 extends Tank{
     eliminar(){
         this._resistencia--;
         if(this._resistencia === 0){
-            setObject(this._posX,this._posY,new espacioLibre(this._coordinador));
-            borrarEnemigo(this,1);
-            muerteEnemy.play();
+            index.setObject(this._posX,this._posY,new espacioLibre(this._coordinador,index.directions[4]));
+            index.borrarEnemigo(this,1);
+            index.emitSound("muerteEnemy");
         }
     }
 }

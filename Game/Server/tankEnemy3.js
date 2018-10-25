@@ -4,6 +4,8 @@
  */
 
 const Tank = require('./Tank');
+const index = require('./index');
+ const espacioLibre = require('./espacioLibre');
 
 class tankEnemy3 extends Tank{
     constructor(x,y,parteLogica,id,danio){
@@ -26,9 +28,9 @@ class tankEnemy3 extends Tank{
         return true;
     }
     eliminar(){
-        setObject(this._posX,this._posY,new espacioLibre(this._coordinador));
-        borrarEnemigo(this,1);
-        muerteEnemy.play();
+        index.setObject(this._posX,this._posY,new espacioLibre(this._coordinador,index.directions[4]));
+        index.borrarEnemigo(this,1);
+        index.emitSound('muerteEnemy');
     }
 }
 

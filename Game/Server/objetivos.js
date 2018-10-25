@@ -3,6 +3,9 @@
  * Clase que permite crear un objetivo
  */
 
+const index = require('./index');
+const espacioLibre = require('./espacioLibre');
+
 class objetivos{
     constructor(x,y,parteLogica,id,vida){
         this._posX = x;
@@ -29,10 +32,11 @@ class objetivos{
     eliminar(){
         this._vida--;
         if (this._vida === 0){
-            muerteObjeto.play();
-            setObject(this._posX,this._posY,new espacioLibre(this._coordinador));
-            restarObjetivos();
-            verificarEstadoJuego();
+            index.setObject(this._posX,this._posY,new espacioLibre(this._coordinador,index.directions[4]));
+            index.emitSound('muerteObjeto');
+            index.RestarObjetivos();
+            index.GameChanged = true;
+            //index.verificarEstadoJuego();
         }
     }
 

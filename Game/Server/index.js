@@ -45,11 +45,13 @@ var BORDE = 0; var BLOQUENORMAL = 1; var EMPTYSPACE = 2; var OBJETIVO1 = 3; var 
 var HEROE = 4; var ENEMY1 = 5; var BULLET = 6; var ENEMY2 = 7; var ENEMY3 = 8;
 var cantidadMaxBloques = 50; var totalObjetivos = 2; var totalEnemigos = 3;  var cantidadEnemigosVivos = 0;
 
+var BALAHEROE = 0;  var BALAENEMIGO = 1;//BALAS PARA CADA TIPO DE TANKE
+
 //Orientation
 var ARRIBA = 0; var ABAJO = 1; var IZQUIERDA = 2; var DERECHA = 3;
 
 // Threats
-var intervalo; var hiloEnemy1, hiloEnemy2y3, hiloBalasEnemy1; 
+var intervalo; var hiloEnemy1, hiloEnemy2y3, hiloBalasEnemy1;  var mainThread;
 var EnemyList2y3 = [], EnemyList1 = [], bulletList = []; var disparoEnemigo; 
 var refreshPantalla;
 
@@ -122,7 +124,6 @@ function CreateMatrix()
         }
     }
     totalObjetivos = 2;
-    //document.getElementById("txtObjetivos").textContent = totalObjetivos;
 
     /*CREAR ENEMIGOS LA PRIMERA VEZ*/
     let usoEnemy1 = false; let usoEnemy2 = false; let usoEnemy3 = false;
@@ -149,7 +150,6 @@ function CreateMatrix()
         }
     }
     totalEnemigos=3;
-    //document.getElementById("txtTanksEnemy").textContent = totalEnemigos;
     return _logicMatrix;
 }
 
@@ -187,41 +187,22 @@ function sleep(milliseconds) {
 // Decrease the ammount of objectives
 function RestarObjetivos() {
     totalObjetivos--;
-    document.getElementById("txtObjetivos").textContent = totalObjetivos;
 }
 
 // Check if the game is over
 // This means if the total of objetives reach 0 or all the players were killed
 function CheckGameState() {
-    /*if(totalObjetivos===0){
-        if(nivelActual === 1){
-            nivelActual = 2;
-            swal(
-                'Good job!',
-                'Avanzas al Nivel 2!',
-                'success'
-            );
-            document.getElementById("txtNivel").textContent = nivelActual;
-            reiniciarJuego();
-        }
-        else if(nivelActual === 2){
-            nivelActual = 3;
-            swal(
-                'Good job!',
-                'Avanzas al Nivel 3!',
-                'success'
-            );
-            document.getElementById("txtNivel").textContent = nivelActual;
-            reiniciarJuego();
-        }
-        else if(nivelActual === 3){
-            terminarJuego(true);
-        }
-    }*/
+   if(totalEnemigos === 0 || totalObjetivos === 0 || playersOnline.length === 0) 
+   {
+        //clearInterval(mainThread);
+        //emitSound("game_over");
+        return true;
+   }  
+   else return false;
 }
 
 // Delete enemy's tank from the matrix
-function DeleteEnemy(tanke,estado) {
+function borrarEnemigo(tanke,estado) {
     if(estado === 1){
         for(item in EnemyList2y3){
             if(tanke === EnemyList2y3[item]){
@@ -237,7 +218,7 @@ function DeleteEnemy(tanke,estado) {
         }
     }
     totalEnemigos--;
-    document.getElementById("txtTanksEnemy").textContent = totalEnemigos;
+    GameChanged = true;
 }
 
 // Create a new enemy tank and add it to the matrix
@@ -260,7 +241,7 @@ function addNewEnemy(){
             EnemyList2y3.push(getObject(posX,posY));
         }
         totalEnemigos++;
-        document.getElementById("txtTanksEnemy").textContent = totalEnemigos;
+        //document.getElementById("txtTanksEnemy").textContent = totalEnemigos;
     }
     else{
         addNewEnemy();
@@ -273,7 +254,8 @@ function RemoveBulletsMatrix(tanke) {
         for(let y = 0; y < _matrixSize; y++){
             if(getObject(x,y).getID === tanke){
                 setObject(x,y,new espacioLibre(this,EMPTYSPACE));
-                sleep(50);
+                sleep(100);
+                GameChanged = true;
             }
         }
     }
@@ -327,45 +309,12 @@ function SearchUsers(orientacion,posX,posY) {
 
 //Gets an specific heroe
 function getUserHeroe(userid) {
-    /*var player;
-    if(playersOnline.length-1 === 0) player = 0;
-    else player = Math.floor((Math.random() * (0*playersOnline.length-1 +1)));
-     
-    console.log(playersOnline[player] + player);*/
 
 	for(var index = 0; index < playersOnline.length;index++)
 	{
 		if(playersOnline[index].getID == userid)
 			return playersOnline[index].getTank;
 	}
-}
-
-
-function terminarJuego(estado,userid) {
-    if(estado){
-        swal(
-            'Good job!',
-            'Has Ganado!',
-            'success'
-        );
-        pasoNivel.play();
-    }
-    else{
-        swal(
-            'Good Luck Next Time!',
-            'Has Perdido!',
-            'error'
-        );
-        game_over.play();
-        muerteHeroe.pause();
-    }
-    //clearInterval(countDown);
-    document.getElementById("txtVidas").textContent = 0;
-    //juegoNormal.pause();
-    io.to(userid).emit('GameOver', null);
-    /*clearInterval(hiloEnemy1);
-    clearInterval(hiloEnemy2y3);
-    clearInterval(intervalo);*/
 }
 
 function dispararEnemigo(posX,posY,pertenece,orientacion) {
@@ -516,56 +465,159 @@ function DeleteTank(userID)
             setObject(playersOnline[index].getPosX,playersOnline[index].getPosY, new espacioLibre(this,EMPTYSPACE));
             playersOnline.splice(index,1);
             GameChanged = true;
+            return;
        }
     }
 }
 
-// Runs the list of players online checking if they still alive 
-// In case that any user lost his live it'll be remove from the list
-// And will be notified about it
-function CheckPlayersState()
-{
-	for(var index = 0;index < playersOnline.length;index++)
-	{
-		if(!playersOnline[index].getState)
-		{
-			DeleteTank(playersOnline[index].getID);          
-		}
-	}
+function getRandomUser() {
+    if(playersOnline.length === 0) return playersOnline[0].getID;
+    else return playersOnline[Math.floor(Math.random() * (playersOnline.length-1 + 1))].getID;
 }
 
-setInterval(function(){
+// Allows the user to shoot
+function disparar(posX,posY,pertenece,orientacion) {
+    emitSound("disparoAHeroe");
+    if (orientacion === ARRIBA) {
+        if (getObject(posX,posY-1)._ID === EMPTYSPACE) {
+            setObject(posX, posY - 1, new bala(posX, posY - 1, orientacion, pertenece, this, BULLET));
+            getObject(posX,posY-1).run();
+        }
+        else if (getObject(posX,posY-1)._ID === BLOQUENORMAL) {
+            setObject(posX, posY - 1, new espacioLibre(this,EMPTYSPACE));
+            //destruir.play();
+            emitSound('destruir');
+        }
+        else if(
+            getObject(posX,posY-1)._ID === ENEMY1 ||
+            getObject(posX,posY-1)._ID === ENEMY2 ||
+            getObject(posX,posY-1)._ID === ENEMY3 ||
+            getObject(posX,posY-1)._ID === OBJETIVO1 ||
+            getObject(posX,posY-1)._ID === OBJETIVO2)
+        {
+            getObject(posX,posY-1).eliminar();
+        }
+        else{
+            //balaPared.play();
+            emitSound('balaPared');
+        }
+    }
+    else if (orientacion === ABAJO) {
+        if (getObject(posX,posY+1)._ID === EMPTYSPACE) {
+            setObject(posX, posY + 1, new bala(posX, posY + 1, orientacion, pertenece, this,BULLET));
+            getObject(posX,posY+1).run();
+        }
+        else if (getObject(posX,posY+1)._ID === BLOQUENORMAL) {
+            setObject(posX, posY + 1, new espacioLibre(this,EMPTYSPACE));
+            //destruir.play();
+            emitSound('destruir');
+        }
+        else if(
+            getObject(posX,posY+1)._ID === ENEMY1 ||
+            getObject(posX,posY+1)._ID === ENEMY2 ||
+            getObject(posX,posY+1)._ID === ENEMY3 ||
+            getObject(posX,posY+1)._ID === OBJETIVO1 ||
+            getObject(posX,posY+1)._ID === OBJETIVO2)
+        {
+            getObject(posX,posY+1).eliminar();
+        }
+        else{
+            //balaPared.play();
+            emitSound('balaPared');
+        }
+    }
+    else if (orientacion === IZQUIERDA) {
+        if (getObject(posX-1,posY)._ID === EMPTYSPACE) {
+            setObject(posX - 1, posY, new bala(posX - 1, posY, orientacion, pertenece, this,BULLET));
+            getObject(posX-1,posY).run();
+        }
+        else if (getObject(posX-1,posY)._ID === BLOQUENORMAL) {
+            setObject(posX - 1, posY, new espacioLibre(this,EMPTYSPACE));
+            //destruir.play();
+            emitSound('destruir');
+        }
+        else if(
+            getObject(posX-1,posY)._ID === ENEMY1 ||
+            getObject(posX-1,posY)._ID === ENEMY2 ||
+            getObject(posX-1,posY)._ID === ENEMY3 ||
+            getObject(posX-1,posY)._ID === OBJETIVO1 ||
+            getObject(posX-1,posY)._ID === OBJETIVO2
+        ){
+            getObject(posX-1,posY).eliminar();
+        }
+        else{
+            //balaPared.play();
+            emitSound('balaPared');
+        }
+    }
+    else if (orientacion === DERECHA) {
+        if (getObject(posX+1,posY)._ID === EMPTYSPACE) {
+            setObject(posX + 1, posY, new bala(posX + 1, posY, orientacion, pertenece, this,BULLET));
+            getObject(posX+1,posY).run();
+        }
+        else if (getObject(posX+1,posY)._ID === BLOQUENORMAL) {
+            setObject(posX + 1, posY, new espacioLibre(this,EMPTYSPACE));
+            //destruir.play();
+            emitSound('destruir');
+        }
+        else if(
+            getObject(posX+1,posY)._ID === ENEMY1 ||
+            getObject(posX+1,posY)._ID === ENEMY2 ||
+            getObject(posX+1,posY)._ID === ENEMY3 ||
+            getObject(posX+1,posY)._ID === OBJETIVO1 ||
+            getObject(posX+1,posY)._ID === OBJETIVO2
+        ){
+            getObject(posX+1,posY).eliminar();
+        }
+        else{
+            //balaPared.play();
+            emitSound('balaPared');
+        }
+    }
+
+    //GameChange = true;
+}
+
+function emitSound(sound)
+{
+    io.sockets.emit("PlaySound",{sound:sound});
+}
+
+function UserDied(userid)
+{
+    io.to(userid).emit('GameOver', { result : true});
+    DeleteTank(userid);
+    emitSound("muerteHeroe");
+}
+
+
+mainThread = setInterval(function(){
 	if(GameChanged)
     {
         io.sockets.emit('GameChange', {CURRENT_MATRIX:TransformArrayToJSON()});
         GameChanged = false;
     }
-	CheckPlayersState();
-    hiloEnemy1 = setInterval(function () {
-        for(let i = 0; i < EnemyList1.length;i++){
-            EnemyList1[i].run();            
-            //EnemyList1[i].dispararEnemy();
-            GameChanged = true;
-        }
-    },5000); // los enemigos se mueven y disparan cada 0.3 segundos
+    if(CheckGameState())
+    {
+        io.sockets.emit('GameOver',{result:true});
+    }
+},500);
 
-    hiloEnemy2y3 = setInterval(function () {
-        for(let i = 0; i < EnemyList2y3.length;i++){
-            EnemyList2y3[i].run();            
-            //EnemyList1[i].dispararEnemy();
-            GameChanged = true;
-        }
-    },6500); // los enemigos se mueven y disparan cada 0.9 segundos
-    disparoEnemigo = setInterval(function () {
-        for(let i = 0; i < EnemyList2y3.length;i++){
-            //EnemyList2y3[i].dispararEnemy();
-        }
-        for(let i = 0; i < EnemyList1.length;i++){
-            //EnemyList1[i].dispararEnemy();
-        }
+hiloEnemy1 = setInterval(function () {
+    for(let i = 0; i < EnemyList1.length;i++){
+        EnemyList1[i].run();            
+        //EnemyList1[i].dispararEnemy(getRandomUser());
         GameChanged = true;
-    },100)
-},800);
+    }
+},2000); // los enemigos se mueven y disparan cada 0.3 segundos
+
+hiloEnemy2y3 = setInterval(function () {
+    for(let i = 0; i < EnemyList2y3.length;i++){
+        EnemyList2y3[i].run();            
+        //EnemyList2y3[i].dispararEnemy(getRandomUser());
+        GameChanged = true;
+    }
+},3500); 
 
 /*--------------------------------------*/
 
@@ -574,10 +626,8 @@ setInterval(function(){
 io.on('connection', function(socket){
 	if(playersOnline.length <4)
 	{
-
+        console.log("asdadsa");
 		var newPosUser = PlaceUserInMap(socket.id);
-
-        console.log(socket.id,newPosUser.x,newPosUser.y);
 
 		playersOnline.push(new User(socket.id,newPosUser.x,newPosUser.y,getObject(newPosUser.x,newPosUser.y)));
 
@@ -591,6 +641,11 @@ io.on('connection', function(socket){
 	socket.on('PlayerMoved',function(data){
 		MovedPlayer(data);
 	});
+
+    socket.on('PlayerShooted',function(data){
+        var instance = getUserHeroe(data.playerID);
+        disparar(instance.getPosX,instance.getPosY,BALAHEROE,instance.getOrientacion);
+    });
 
 	socket.on('disconnect',function(){
 		DeleteTank(socket.id);
@@ -610,5 +665,9 @@ server.listen(5000,function(){
 
 module.exports.getObject = getObject; module.exports.setObject = setObject; module.exports.getUserHeroe = getUserHeroe;
 module.exports.SearchUsers = SearchUsers; module.exports.dispararEnemigo = dispararEnemigo;
-module.exports.directions = [ARRIBA,ABAJO,IZQUIERDA,DERECHA,EMPTYSPACE];
+module.exports.directions = [ARRIBA,ABAJO,IZQUIERDA,DERECHA,EMPTYSPACE,BORDE,BLOQUENORMAL];
+module.exports.tankIDS = [ENEMY1,ENEMY2,ENEMY3,BALAHEROE,BALAENEMIGO,HEROE];
+module.exports.emitSound = emitSound; module.exports.GameChanged = GameChanged;
+module.exports.RemoveBulletsMatrix = RemoveBulletsMatrix; module.exports.borrarEnemigo = borrarEnemigo;
+module.exports.RestarObjetivos = RestarObjetivos; module.exports.UserDied = UserDied;
 /*--------------------------------------*/

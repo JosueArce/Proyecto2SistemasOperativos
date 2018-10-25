@@ -1,4 +1,5 @@
-
+const index = require('./index');
+const espacioLibre = require('./espacioLibre');
  class bloque{
     constructor(x,y,parteLogica,BLOQUENORMAL){
         this._coordinador = parteLogica;
@@ -11,8 +12,9 @@
         return this._ID;
     }
     eliminar(){
-        setObject(this._posX,this._posY,new espacioLibre(this._coordinador));
-        destruir.play();
+        index.setObject(this._posX,this._posY,new espacioLibre(this._coordinador,index.directions[4]));
+        index.emitSound('destruir');
+        index.GameChanged = true;
     }
     get getPosX(){
         return this._posX;

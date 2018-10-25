@@ -44,14 +44,8 @@
     <!--VENTANA DEL JUEGO-->
     <div class="container" >
         <div class="row">
-            <div class="col-xs-2">
-                <div class="container-fluid">
-                    <br> <br>  <br>  <br> <br>  <br> <br> <br> <br> <br>
-                    <label><b>Tankes Enemigos: </b><span id="txtTanksEnemy">3</span></label><br>
-                    <label><b>Objetivos Restantes: </b><span id="txtObjetivos">2</span></label>
-                </div>
-            </div>
-            <div class="col-xs-10">
+            
+            <div class="col-xs-12">
                 <div class="container">
                     <div align=center>
                         <canvas id="scene" width="705" height="705" style="background-color: black; margin: auto;">Su navegador no soporta canvas</canvas>
@@ -73,6 +67,8 @@
 	
 	<script src="/socket.io/socket.io.js"></script>
 	<script src="controller.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/6.11.5/sweetalert2.all.js"></script>
 
     </body>
 </html>

@@ -3,6 +3,8 @@
  * TIENE 1 VIDA PERO SE MUEVE RAPIDO
  */
 const Tank = require('./Tank');
+const index = require('./index');
+ const espacioLibre = require('./espacioLibre');
 
 class tankEnemy1 extends Tank{
     constructor(x,y,velocidad,parteLogica,id){
@@ -25,9 +27,9 @@ class tankEnemy1 extends Tank{
         return true;
     }
     eliminar(){
-        setObject(this._posX,this._posY,new espacioLibre(this._coordinador));
-        borrarEnemigo(this,0);
-        muerteEnemy.play();
+        index.setObject(this._posX,this._posY,new espacioLibre(this._coordinador,index.directions[4]));
+        index.borrarEnemigo(this,0);
+        index.emitSound("muerteEnemy");
     }
 }
 

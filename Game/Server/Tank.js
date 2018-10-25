@@ -95,13 +95,9 @@ class Tank{
         }
         index.setObject(this._posX,this._posY,this);
     }
-    dispararEnemy(){
-        if(this._posY === index.getUserHeroe().getPosY || this._posX === index.getUserHeroe().getPosX){
-            if(index.SearchUsers(this._orientacion,this._posX,this._posY)){
-                index.dispararEnemigo(this._posX,this._posY,this._ID,this._orientacion);
-            }
-        }
-    }
+    /*dispararEnemy(userConnected){
+        
+    }*/
     generarRandom(limite){
         return Math.floor((Math.random() * limite) + 1) - 1;
     }

@@ -1,3 +1,6 @@
+ const index = require('./index');
+ const espacioLibre = require('./espacioLibre');
+
  class bala{
     constructor(x,y,orientacion,balaTanke,parteLogica,BULLET){
         this._coordinador = parteLogica;
@@ -39,116 +42,115 @@
         this._estadoBala = estado;
     }
     moverBala(orientacion){
-        actualizar();
         let solicitud;
-        if(orientacion === ARRIBA){
-            this._orientacion = ARRIBA;
-            solicitud = getObject(this._posX,this._posY-1); // objeto siguiente hacia arriba
+        if(orientacion === index.directions[0]){
+            this._orientacion = index.directions[0];
+            solicitud = index.getObject(this._posX,this._posY-1); // objeto siguiente hacia arriba
             if(solicitud.espacioLibre()){
                 this._posY--;//SIGA MOVIENDOSE
-                setObject(this._posX,this._posY,this);
+                index.setObject(this._posX,this._posY,this);
             }
             if(solicitud.esDestructible()){
-                if(this._tipoBala === BALAHEROE){//DESTRUYE LOS OBJETOS
+                if(this._tipoBala === index.tankIDS[3]){//DESTRUYE LOS OBJETOS
                     solicitud.eliminar();//DEPEDIENDO DEL OBJETO A QUIEN PERTENEZCA ACCIONA ALGO
                     this._estadoBala = false;
-                    setObject(this._posX,this._posY,new espacioLibre(this._coordinador));
+                    index.setObject(this._posX,this._posY,new espacioLibre(this._coordinador,index.directions[4]));
                 }
-                if(this._tipoBala === BALAENEMIGO){
-                    if(solicitud.getID === HEROE){
+                if(this._tipoBala === index.tankIDS[4]){
+                    if(solicitud.getID === index.tankIDS[5]){
                         solicitud.eliminar();
                         this._estadoBala = false;
-                        muerteHeroe.play();
+                        index.emitSound('muerteHeroe');
                     }
                 }
             }
-            if(solicitud.getID === BORDE){
+            if(solicitud.getID === index.directions[5]){
                 this._estadoBala = false;
-                setObject(this._posX,this._posY,new espacioLibre(this._coordinador));
-                balaPared.play();
+                index.setObject(this._posX,this._posY,new espacioLibre(this._coordinador,index.directions[4]));
+                index.emitSound('balaPared');
             }
         }
-        else if(orientacion === ABAJO){
-            this._orientacion = ABAJO;
-            solicitud = getObject(this._posX,this._posY+1);
+        else if(orientacion === index.directions[1]){
+            this._orientacion = index.directions[1];
+            solicitud = index.getObject(this._posX,this._posY+1);
             if(solicitud.espacioLibre()){
                 this._posY++;
-                setObject(this._posX,this._posY,this);
+                index.setObject(this._posX,this._posY,this);
                 return;
             }
             if(solicitud.esDestructible()){
-                if(this._tipoBala === BALAHEROE){//DESTRUYE LOS OBJETOS
+                if(this._tipoBala === index.tankIDS[3]){//DESTRUYE LOS OBJETOS
                     solicitud.eliminar();//DEPEDIENDO DEL OBJETO A QUIEN PERTENEZCA ACCIONA ALGO
                     this._estadoBala = false;
-                    setObject(this._posX,this._posY,new espacioLibre(this._coordinador));
+                    index.setObject(this._posX,this._posY,new espacioLibre(this._coordinador,index.directions[4]));
                 }
-                if(this._tipoBala === BALAENEMIGO){
-                    if(solicitud.getID === HEROE){
+                if(this._tipoBala === index.tankIDS[4]){
+                    if(solicitud.getID === index.tankIDS[5]){
                         solicitud.eliminar();
                         this._estadoBala = false;
-                        muerteHeroe.play();
+                        index.emitSound('muerteHeroe');
                     }
                 }
             }
-            if(solicitud.getID === BORDE){
+            if(solicitud.getID === index.directions[5]){
                 this._estadoBala = false;
-                setObject(this._posX,this._posY,new espacioLibre(this._coordinador));
-                balaPared.play();
+                index.setObject(this._posX,this._posY,new espacioLibre(this._coordinador,index.directions[4]));
+                index.emitSound('balaPared');
             }
         }
-        else if(orientacion === IZQUIERDA){
-            this._orientacion = IZQUIERDA;
-            solicitud = getObject(this._posX-1,this._posY);
+        else if(orientacion === index.directions[2]){
+            this._orientacion = index.directions[2];
+            solicitud = index.getObject(this._posX-1,this._posY);
             if(solicitud.espacioLibre()){
                 this._posX--;
-                setObject(this._posX,this._posY,this);
+                index.setObject(this._posX,this._posY,this);
                 return;
             }
             if(solicitud.esDestructible()){
-                if(this._tipoBala === BALAHEROE){//DESTRUYE LOS OBJETOS
+                if(this._tipoBala === index.tankIDS[3]){//DESTRUYE LOS OBJETOS
                     solicitud.eliminar();//DEPEDIENDO DEL OBJETO A QUIEN PERTENEZCA ACCIONA ALGO
                     this._estadoBala = false;
-                    setObject(this._posX,this._posY,new espacioLibre(this._coordinador));
+                    index.setObject(this._posX,this._posY,new espacioLibre(this._coordinador,index.directions[4]));
                 }
-                if(this._tipoBala === BALAENEMIGO){
-                    if(solicitud.getID === HEROE){
+                if(this._tipoBala === index.tankIDS[4]){
+                    if(solicitud.getID === index.tankIDS[5]){
                         solicitud.eliminar();
                         this._estadoBala = false;
-                        muerteHeroe.play();
+                        index.emitSound('muerteHeroe');
                     }
                 }
             }
-            if(solicitud.getID === BORDE){
+            if(solicitud.getID === index.directions[5]){
                 this._estadoBala = false;
-                setObject(this._posX,this._posY,new espacioLibre(this._coordinador));
-                balaPared.play();
+                index.setObject(this._posX,this._posY,new espacioLibre(this._coordinador,index.directions[4]));
+                index.emitSound('balaPared');
             }
         }
-        else if(orientacion === DERECHA){
-            this._orientacion = DERECHA;
-            solicitud = getObject(this._posX+1,this._posY);
+        else if(orientacion === index.directions[3]){
+            this._orientacion = index.directions[3];
+            solicitud = index.getObject(this._posX+1,this._posY);
             if(solicitud.espacioLibre()){
                 this._posX++;
-                setObject(this._posX,this._posY,this);
+                index.setObject(this._posX,this._posY,this);
             }
             if(solicitud.esDestructible()){
-                if(this._tipoBala === BALAHEROE){//DESTRUYE LOS OBJETOS
+                if(this._tipoBala === index.tankIDS[3]){//DESTRUYE LOS OBJETOS
                     solicitud.eliminar();//DEPEDIENDO DEL OBJETO A QUIEN PERTENEZCA ACCIONA ALGO
                     this._estadoBala = false;
-                    setObject(this._posX,this._posY,new espacioLibre(this._coordinador));
+                    index.setObject(this._posX,this._posY,new espacioLibre(this._coordinador,index.directions[4]));
                 }
-                if(this._tipoBala === BALAENEMIGO){
-                    if(solicitud.getID === HEROE){
+                if(this._tipoBala === index.tankIDS[4]){
+                    if(solicitud.getID === index.tankIDS[5]){
                         solicitud.eliminar();
                         this._estadoBala = false;
-                        muerteHeroe.play();
+                        index.emitSound('muerteHeroe');
                     }
                 }
             }
-            if(solicitud.getID === BORDE){
+            if(solicitud.getID === index.directions[5]){
                 this._estadoBala = false;
-                setObject(this._posX,this._posY,new espacioLibre(this._coordinador));
-                balaPared.play();
+                index.setObject(this._posX,this._posY,new espacioLibre(this._coordinador,index.directions[4]));
+                index.emitSound('balaPared');
             }
         }
     }
@@ -156,8 +158,11 @@
     run(){
         while(this._estadoBala){
             this.moverBala(this._orientacion);
+
+            index.GameChanged = true;
         }
-        quitarBalasMatriz(this.getID);
+        index.RemoveBulletsMatrix(this.getID);
+
     }
 
     esDestructible(){
