@@ -363,6 +363,16 @@ function TransformArrayToJSONAux(objectID)
 	return tempArray;
 }
 
+function getPlayersID()
+{
+    var temp = [];
+    for(let i = 0;i<playersOnline.length;i++)
+    {
+        temp.push({ID:playersOnline[i].getID});
+    }
+    return temp;
+}
+
 // Calls the TransformArrayToJSONAux 
 function TransformArrayToJSON()
 {
@@ -375,7 +385,7 @@ function TransformArrayToJSON()
 	tempArray.push({ID:ENEMY1, Positions : TransformArrayToJSONAux(ENEMY1)});
 	tempArray.push({ID:ENEMY2, Positions : TransformArrayToJSONAux(ENEMY2)});
 	tempArray.push({ID:ENEMY3, Positions : TransformArrayToJSONAux(ENEMY3)});
-	tempArray.push({ID:HEROE, Positions : TransformArrayToJSONAux(HEROE)});
+	tempArray.push({ID:HEROE, Positions : TransformArrayToJSONAux(HEROE), allUsers:getPlayersID()});
 	tempArray.push({ID:OBJETIVO1, Positions : TransformArrayToJSONAux(OBJETIVO1)});
 	tempArray.push({ID:OBJETIVO2, Positions : TransformArrayToJSONAux(OBJETIVO2)});
 
@@ -444,7 +454,6 @@ function DeleteTank(userID)
             setObject(playersOnline[index].getPosX,playersOnline[index].getPosY, new espacioLibre(this,EMPTYSPACE));
             playersOnline.splice(index,1);
             GameChanged = true;
-            return;
        }
     }
 }
@@ -587,10 +596,8 @@ function emitSound(sound)
 
 function UserDied(userid)
 {
-    DeleteTank(userid);
     io.to(userid).emit('GameOver', { result : true});
     emitSound("muerteHeroe");
-    GameChanged = true;
 }
 
 /*--------------THREADS-----------------*/
@@ -613,7 +620,7 @@ hiloEnemy1 = setInterval(function () {
             EnemyList1[i].dispararEnemy(playersOnline);
         GameChanged = true;
     }
-},4000); // los enemigos se mueven y disparan cada 0.3 segundos
+},3000); // los enemigos se mueven y disparan cada 0.3 segundos
 
 hiloEnemy2y3 = setInterval(function () {
     for(let i = 0; i < EnemyList2y3.length;i++){
@@ -622,7 +629,7 @@ hiloEnemy2y3 = setInterval(function () {
             EnemyList2y3[i].dispararEnemy(playersOnline);
         GameChanged = true;
     }
-},4500); 
+},3500); 
 
 intervalo = setInterval(addNewEnemy, 15000); // actualiza enemigos cada 15 segundos
 /****************************************/

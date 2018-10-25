@@ -114,6 +114,7 @@ function PaintMatrix(_ServerMatrix)
 {
 	let canvas = document.getElementById('scene');
     let context = canvas.getContext('2d');
+    let H1 = false;H2 = false, H3 = false, H4 = false;
 
 	for(var posX = 0; posX < _ServerMatrix.length; posX++)
 	{
@@ -135,7 +136,8 @@ function PaintMatrix(_ServerMatrix)
                 context.drawImage(document.getElementById('Objetivo2'), _ServerMatrix[posX].Positions[posY].x*47, _ServerMatrix[posX].Positions[posY].y*47);
             }
             else if(_ServerMatrix[posX].ID === HEROE){
-                switch (_ServerMatrix[posX].Positions[posY].Orientacion){
+                switch (_ServerMatrix[posX].Positions[posY].Orientacion)
+                {
                     case 2://IZQUIERDA
                         context.drawImage(document.getElementById('heroeLeft'), _ServerMatrix[posX].Positions[posY].x*47, _ServerMatrix[posX].Positions[posY].y*47);
                         break;
@@ -149,6 +151,7 @@ function PaintMatrix(_ServerMatrix)
                         context.drawImage(document.getElementById('heroeRight'), _ServerMatrix[posX].Positions[posY].x*47, _ServerMatrix[posX].Positions[posY].y*47);
                         break;
                 }
+                
             }
             else if(_ServerMatrix[posX].ID === BULLET){
                 context.drawImage(document.getElementById('bala'), _ServerMatrix[posX].Positions[posY].x*47, _ServerMatrix[posX].Positions[posY].y*47);
@@ -247,6 +250,7 @@ socket.on('GameOver',function(data){
         'Good bye!!',
         'error'
     );
+    socket.emit('disconnect',null);
     //juegoNormal.pause();
 });
 
