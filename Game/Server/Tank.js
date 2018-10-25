@@ -1,5 +1,6 @@
 const index = require('./index');
 const espacioLibre = require('./espacioLibre');
+const user = require('./user');
 
 class Tank{
     constructor(ID,parteLogica,x,y,o) {
@@ -95,9 +96,21 @@ class Tank{
         }
         index.setObject(this._posX,this._posY,this);
     }
-    /*dispararEnemy(userConnected){
-        
-    }*/
+    dispararEnemy(totalUsers){
+        var randomUser;
+        if(totalUsers.length === 0) randomUser = 0;
+        else randomUser = this.generarRandom(totalUsers.length);
+
+        if(this._posX === index.getUserHeroe(totalUsers[randomUser].getID).getPosX ||
+            this._posY === index.getUserHeroe(totalUsers[randomUser].getID).getPosY)
+        {
+            if(index.SearchUsers(this._orientacion,this._posX,this._posY))
+            {
+                console.log(this._ID);
+                index.disparar(this._posX,this._posY,this._ID,this._orientacion);
+            }
+        }
+    }
     generarRandom(limite){
         return Math.floor((Math.random() * limite) + 1) - 1;
     }

@@ -132,13 +132,13 @@ function CreateMatrix()
         posY = generarPosicionAleatoria();
         if(getObject(posX,posY).espacioLibre()){
             if(!usoEnemy1){
-                setObject(posX,posY,new tankEnemy1(posX,posY,1,this,ENEMY1));
-                EnemyList1.push(getObject(posX,posY));
+                //setObject(posX,posY,new tankEnemy1(posX,posY,1,this,ENEMY1));
+                //EnemyList1.push(getObject(posX,posY));
                 usoEnemy1=true;
             }
             else if(!usoEnemy2){
-                setObject(posX,posY,new tankEnemy2(posX,posY,3,this,ENEMY2));
-                EnemyList2y3.push(getObject(posX,posY));
+                //setObject(posX,posY,new tankEnemy2(posX,posY,3,this,ENEMY2));
+                //EnemyList2y3.push(getObject(posX,posY));
                 usoEnemy2=true;
             }
             else if(!usoEnemy3){
@@ -194,8 +194,8 @@ function RestarObjetivos() {
 function CheckGameState() {
    if(totalEnemigos === 0 || totalObjetivos === 0 || playersOnline.length === 0) 
    {
-        //clearInterval(mainThread);
-        //emitSound("game_over");
+        clearInterval(mainThread);
+        emitSound("game_over");
         return true;
    }  
    else return false;
@@ -477,6 +477,7 @@ function getRandomUser() {
 
 // Allows the user to shoot
 function disparar(posX,posY,pertenece,orientacion) {
+    console.log(posX,posY,pertenece,orientacion);
     emitSound("disparoAHeroe");
     if (orientacion === ARRIBA) {
         if (getObject(posX,posY-1)._ID === EMPTYSPACE) {
@@ -493,7 +494,8 @@ function disparar(posX,posY,pertenece,orientacion) {
             getObject(posX,posY-1)._ID === ENEMY2 ||
             getObject(posX,posY-1)._ID === ENEMY3 ||
             getObject(posX,posY-1)._ID === OBJETIVO1 ||
-            getObject(posX,posY-1)._ID === OBJETIVO2)
+            getObject(posX,posY-1)._ID === OBJETIVO2 ||
+            getObject(posX,posY-1)._ID === HEROE)
         {
             getObject(posX,posY-1).eliminar();
         }
@@ -517,7 +519,8 @@ function disparar(posX,posY,pertenece,orientacion) {
             getObject(posX,posY+1)._ID === ENEMY2 ||
             getObject(posX,posY+1)._ID === ENEMY3 ||
             getObject(posX,posY+1)._ID === OBJETIVO1 ||
-            getObject(posX,posY+1)._ID === OBJETIVO2)
+            getObject(posX,posY+1)._ID === OBJETIVO2 ||
+            getObject(posX,posY+1)._ID === HEROE)
         {
             getObject(posX,posY+1).eliminar();
         }
@@ -541,8 +544,9 @@ function disparar(posX,posY,pertenece,orientacion) {
             getObject(posX-1,posY)._ID === ENEMY2 ||
             getObject(posX-1,posY)._ID === ENEMY3 ||
             getObject(posX-1,posY)._ID === OBJETIVO1 ||
-            getObject(posX-1,posY)._ID === OBJETIVO2
-        ){
+            getObject(posX-1,posY)._ID === OBJETIVO2 ||
+            getObject(posX-1,posY)._ID === HEROE)
+        {
             getObject(posX-1,posY).eliminar();
         }
         else{
@@ -565,8 +569,9 @@ function disparar(posX,posY,pertenece,orientacion) {
             getObject(posX+1,posY)._ID === ENEMY2 ||
             getObject(posX+1,posY)._ID === ENEMY3 ||
             getObject(posX+1,posY)._ID === OBJETIVO1 ||
-            getObject(posX+1,posY)._ID === OBJETIVO2
-        ){
+            getObject(posX+1,posY)._ID === OBJETIVO2 ||
+            getObject(posX+1,posY)._ID === HEROE)
+        {
             getObject(posX+1,posY).eliminar();
         }
         else{
@@ -588,6 +593,7 @@ function UserDied(userid)
     io.to(userid).emit('GameOver', { result : true});
     DeleteTank(userid);
     emitSound("muerteHeroe");
+    GameChanged = true;
 }
 
 
@@ -601,23 +607,25 @@ mainThread = setInterval(function(){
     {
         io.sockets.emit('GameOver',{result:true});
     }
-},500);
+},1050);
 
 hiloEnemy1 = setInterval(function () {
     for(let i = 0; i < EnemyList1.length;i++){
-        EnemyList1[i].run();            
-        //EnemyList1[i].dispararEnemy(getRandomUser());
+        EnemyList1[i].run(); 
+        if(playersOnline.length > 0)           
+            EnemyList1[i].dispararEnemy(playersOnline);
         GameChanged = true;
     }
-},2000); // los enemigos se mueven y disparan cada 0.3 segundos
+},4010); // los enemigos se mueven y disparan cada 0.3 segundos
 
 hiloEnemy2y3 = setInterval(function () {
     for(let i = 0; i < EnemyList2y3.length;i++){
-        EnemyList2y3[i].run();            
-        //EnemyList2y3[i].dispararEnemy(getRandomUser());
+        EnemyList2y3[i].run();  
+        if(playersOnline.length > 0)           
+            EnemyList2y3[i].dispararEnemy(playersOnline);
         GameChanged = true;
     }
-},3500); 
+},4500); 
 
 /*--------------------------------------*/
 
@@ -626,7 +634,6 @@ hiloEnemy2y3 = setInterval(function () {
 io.on('connection', function(socket){
 	if(playersOnline.length <4)
 	{
-        console.log("asdadsa");
 		var newPosUser = PlaceUserInMap(socket.id);
 
 		playersOnline.push(new User(socket.id,newPosUser.x,newPosUser.y,getObject(newPosUser.x,newPosUser.y)));
@@ -670,4 +677,5 @@ module.exports.tankIDS = [ENEMY1,ENEMY2,ENEMY3,BALAHEROE,BALAENEMIGO,HEROE];
 module.exports.emitSound = emitSound; module.exports.GameChanged = GameChanged;
 module.exports.RemoveBulletsMatrix = RemoveBulletsMatrix; module.exports.borrarEnemigo = borrarEnemigo;
 module.exports.RestarObjetivos = RestarObjetivos; module.exports.UserDied = UserDied;
+module.exports.SearchUsers = SearchUsers; module.exports.disparar = disparar;
 /*--------------------------------------*/
