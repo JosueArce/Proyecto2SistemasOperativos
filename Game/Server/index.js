@@ -63,6 +63,8 @@ const max_players_allowed = 4;
 // Game state
 var finJuego = false; var GameChanged = false;
 
+var J1 = false, J2 = false, J3 = false, J4 = false;
+
 /*--------------------------------------*/
 
 /*----------- ROUTES -------------------*/
@@ -189,16 +191,25 @@ function RestarObjetivos() {
     totalObjetivos--;
 }
 
+function stopGame()
+{
+    clearInterval(intervaloCreateEnemy);
+    clearInterval(mainThread);
+    clearInterval(hiloEnemy1);
+    clearInterval(hiloEnemy2y3);
+}
+
 // Check if the game is over
 // This means if the total of objetives reach 0 or all the players were killed
 function CheckGameState() {
-   if(totalEnemigos === 0 || totalObjetivos === 0 || playersOnline.length === 0) 
+   if( playersOnline.length === 0) 
    {
-        clearInterval(mainThread);
+        stopGame(); 
         emitSound("game_over");
-        return true;
+        return 1;
    }  
-   else return false;
+   else if(totalEnemigos === 0 || totalObjetivos === 0) {stopGame(); return 2;}
+   return 0;
 }
 
 // Delete enemy's tank from the matrix
@@ -254,7 +265,7 @@ function RemoveBulletsMatrix(tanke) {
         for(let y = 0; y < _matrixSize; y++){
             if(getObject(x,y).getID === tanke){
                 setObject(x,y,new espacioLibre(this,EMPTYSPACE));
-                sleep(100);
+                sleep(10000);
                 GameChanged = true;
             }
         }
@@ -308,7 +319,7 @@ function SearchUsers(orientacion,posX,posY) {
 }
 
 //Gets an specific heroe
-function getUserHeroe(userid) {
+function getUserHeroeTank(userid) {
 
 	for(var index = 0; index < playersOnline.length;index++)
 	{
@@ -316,6 +327,7 @@ function getUserHeroe(userid) {
 			return playersOnline[index].getTank;
 	}
 }
+
 
 // Distribuite the positions depending of the object
 function TransformArrayToJSONAux(objectID)
@@ -340,7 +352,7 @@ function TransformArrayToJSONAux(objectID)
 					tempArray.push({x:posX,y:posY})
 					break;
 				case objectID === getObject(posX,posY).getID && objectID === HEROE:
-					tempArray.push({x:posX,y:posY, Orientacion : getObject(posX,posY).getOrientacion})
+					tempArray.push({x:posX,y:posY, Orientacion : getObject(posX,posY).getOrientacion, number:getObject(posX,posY).getNumOfPlayer})
 					break;
 				case objectID === getObject(posX,posY).getID && objectID === ENEMY1:
 					tempArray.push({x:posX,y:posY, Orientacion : getObject(posX,posY).getOrientacion})
@@ -385,7 +397,7 @@ function TransformArrayToJSON()
 	tempArray.push({ID:ENEMY1, Positions : TransformArrayToJSONAux(ENEMY1)});
 	tempArray.push({ID:ENEMY2, Positions : TransformArrayToJSONAux(ENEMY2)});
 	tempArray.push({ID:ENEMY3, Positions : TransformArrayToJSONAux(ENEMY3)});
-	tempArray.push({ID:HEROE, Positions : TransformArrayToJSONAux(HEROE), allUsers:getPlayersID()});
+	tempArray.push({ID:HEROE, Positions : TransformArrayToJSONAux(HEROE)});
 	tempArray.push({ID:OBJETIVO1, Positions : TransformArrayToJSONAux(OBJETIVO1)});
 	tempArray.push({ID:OBJETIVO2, Positions : TransformArrayToJSONAux(OBJETIVO2)});
 
@@ -393,13 +405,13 @@ function TransformArrayToJSON()
 }
 
 // Finds a position in the matrix to place the new user
-function PlaceUserInMap(userid)
+function PlaceUserInMap(userid,numOfPlayer)
 {
 	while(true){
         posX = generarPosicionAleatoria();
         posY = generarPosicionAleatoria();//SE GENERAN POSICIONES AL AZAR ENTRE 0 Y 10(TAMAÑO MATRIZ)
         if(getObject(posX,posY).espacioLibre()){
-           setObject(posX,posY,new tankHeroe(posX,posY,this,HEROE,userid)); //SE AGREGA EL NUEVO TANKE
+           setObject(posX,posY,new tankHeroe(posX,posY,this,HEROE,userid,numOfPlayer)); //SE AGREGA EL NUEVO TANKE
            GameChanged = true;
            return {x:posX, y: posY}
         }
@@ -409,7 +421,7 @@ function PlaceUserInMap(userid)
 // Moves the players tank
 function MovedPlayer(player)
 {
-	heroe = getUserHeroe(player.playerID);
+	heroe = getUserHeroeTank(player.playerID);
 
     //VA AGREGAR UN ESPACIO VACIO EN DONDE SE ENCONTRABA EL HEROE, O SEA SE VA EMPEZAR A MOVER
     setObject(heroe.getPosX,heroe.getPosY,new espacioLibre(this,EMPTYSPACE));
@@ -596,42 +608,60 @@ function emitSound(sound)
 
 function UserDied(userid)
 {
+    DeleteTank(userid);
     io.to(userid).emit('GameOver', { result : true});
     emitSound("muerteHeroe");
 }
 
+function DefineNumberPlayer()
+{
+    if(!J1) {J1=true; return 1;}
+    else if(!J2) {J2= true; return 2;}
+    else if(!J3) {J3=true; return 3;}
+    else if(!J4) {J4=true; return 4;}
+}
+
+function RemoveNumberPlayer(num)
+{
+    if(num===1) J1 = false; 
+    else if(num===2) J2 = false;
+    else if(num===3) J3 = false;
+    else if(num===4) J4 = false;;
+}
+
 /*--------------THREADS-----------------*/
-mainThread = setInterval(function(){
+mainThread = setInterval(() => {
 	if(GameChanged)
     {
         io.sockets.emit('GameChange', {CURRENT_MATRIX:TransformArrayToJSON()});
         GameChanged = false;
     }
-    if(CheckGameState())
+    if(CheckGameState() === 1)
     {
         io.sockets.emit('GameOver',{result:true});
     }
-},1100);
+    else if(CheckGameState() === 2) io.sockets.emit('GameOver',{result:false});
+},1000);
 
-hiloEnemy1 = setInterval(function () {
+hiloEnemy1 = setInterval(() => {
     for(let i = 0; i < EnemyList1.length;i++){
         EnemyList1[i].run(); 
         if(playersOnline.length > 0)           
             EnemyList1[i].dispararEnemy(playersOnline);
         GameChanged = true;
     }
-},3000); // los enemigos se mueven y disparan cada 0.3 segundos
+},4000); // los enemigos se mueven y disparan cada 0.3 segundos
 
-hiloEnemy2y3 = setInterval(function () {
+hiloEnemy2y3 = setInterval(() => {
     for(let i = 0; i < EnemyList2y3.length;i++){
         EnemyList2y3[i].run();  
         if(playersOnline.length > 0)           
             EnemyList2y3[i].dispararEnemy(playersOnline);
         GameChanged = true;
     }
-},3500); 
+},4500); 
 
-intervalo = setInterval(addNewEnemy, 15000); // actualiza enemigos cada 15 segundos
+//intervaloCreateEnemy = setInterval(addNewEnemy, 15000); // actualiza enemigos cada 15 segundos
 /****************************************/
 
 /*--------------------------------------*/
@@ -641,13 +671,14 @@ intervalo = setInterval(addNewEnemy, 15000); // actualiza enemigos cada 15 segun
 io.on('connection', function(socket){
 	if(playersOnline.length <4)
 	{
-		var newPosUser = PlaceUserInMap(socket.id);
+        var tankNum = DefineNumberPlayer();
+
+		var newPosUser = PlaceUserInMap(socket.id,tankNum);
 
 		playersOnline.push(new User(socket.id,newPosUser.x,newPosUser.y,getObject(newPosUser.x,newPosUser.y)));
 
-		io.to(socket.id).emit('FirstConnection', { PLAYER_ID : socket.id});
+		io.to(socket.id).emit('FirstConnection', { PLAYER_ID : socket.id,tankNum : tankNum});
 
-        emitSound("inicio"); emitSound("juegoNormal");
 
 		console.log(socket.id + ' has connected!' + " #: "+playersOnline.length);
 
@@ -664,9 +695,10 @@ io.on('connection', function(socket){
     });
 
 	socket.on('disconnect',function(){
+        RemoveNumberPlayer(getUserHeroeTank(socket.id).getNumOfPlayer);
 		DeleteTank(socket.id);
 		console.log(socket.id + ' disconnected!' + " #: "+playersOnline.length);
-        socket.emit('UserDisconnected', null);
+        socket.emit('UserDisconnected', {msg:null});
 	});
 });
 
@@ -680,7 +712,7 @@ server.listen(5000,function(){
 });
 
 /*---------------EXPORTING PACKAGES--------------------------------------*/
-module.exports.getObject = getObject; module.exports.setObject = setObject; module.exports.getUserHeroe = getUserHeroe;
+module.exports.getObject = getObject; module.exports.setObject = setObject; module.exports.getUserHeroe = getUserHeroeTank;
 module.exports.SearchUsers = SearchUsers; module.exports.dispararEnemigo = dispararEnemigo;
 module.exports.directions = [ARRIBA,ABAJO,IZQUIERDA,DERECHA,EMPTYSPACE,BORDE,BLOQUENORMAL];
 module.exports.tankIDS = [ENEMY1,ENEMY2,ENEMY3,BALAHEROE,BALAENEMIGO,HEROE];

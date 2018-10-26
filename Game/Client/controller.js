@@ -136,22 +136,78 @@ function PaintMatrix(_ServerMatrix)
                 context.drawImage(document.getElementById('Objetivo2'), _ServerMatrix[posX].Positions[posY].x*47, _ServerMatrix[posX].Positions[posY].y*47);
             }
             else if(_ServerMatrix[posX].ID === HEROE){
-                switch (_ServerMatrix[posX].Positions[posY].Orientacion)
+                if(_ServerMatrix[posX].Positions[posY].number===1)
                 {
-                    case 2://IZQUIERDA
-                        context.drawImage(document.getElementById('heroeLeft'), _ServerMatrix[posX].Positions[posY].x*47, _ServerMatrix[posX].Positions[posY].y*47);
-                        break;
-                    case 0://ARRIBA
-                        context.drawImage(document.getElementById('heroeUp'), _ServerMatrix[posX].Positions[posY].x*47, _ServerMatrix[posX].Positions[posY].y*47);
-                        break;
-                    case 1://ABAJO
-                        context.drawImage(document.getElementById('heroeDown'), _ServerMatrix[posX].Positions[posY].x*47, _ServerMatrix[posX].Positions[posY].y*47);
-                        break;
-                    case 3://DERECHA
-                        context.drawImage(document.getElementById('heroeRight'), _ServerMatrix[posX].Positions[posY].x*47, _ServerMatrix[posX].Positions[posY].y*47);
-                        break;
+                    switch (_ServerMatrix[posX].Positions[posY].Orientacion)
+                    {
+                        case 2://IZQUIERDA
+                            context.drawImage(document.getElementById('heroeLeft'), _ServerMatrix[posX].Positions[posY].x*47, _ServerMatrix[posX].Positions[posY].y*47);
+                            break;
+                        case 0://ARRIBA
+                            context.drawImage(document.getElementById('heroeUp'), _ServerMatrix[posX].Positions[posY].x*47, _ServerMatrix[posX].Positions[posY].y*47);
+                            break;
+                        case 1://ABAJO
+                            context.drawImage(document.getElementById('heroeDown'), _ServerMatrix[posX].Positions[posY].x*47, _ServerMatrix[posX].Positions[posY].y*47);
+                            break;
+                        case 3://DERECHA
+                            context.drawImage(document.getElementById('heroeRight'), _ServerMatrix[posX].Positions[posY].x*47, _ServerMatrix[posX].Positions[posY].y*47);
+                            break;
+                    }
                 }
-                
+                else if(_ServerMatrix[posX].Positions[posY].number===2)
+                {
+                    switch (_ServerMatrix[posX].Positions[posY].Orientacion)
+                    {
+                        case 2://IZQUIERDA
+                            context.drawImage(document.getElementById('heroe2Left'), _ServerMatrix[posX].Positions[posY].x*47, _ServerMatrix[posX].Positions[posY].y*47);
+                            break;
+                        case 0://ARRIBA
+                            context.drawImage(document.getElementById('heroe2Up'), _ServerMatrix[posX].Positions[posY].x*47, _ServerMatrix[posX].Positions[posY].y*47);
+                            break;
+                        case 1://ABAJO
+                            context.drawImage(document.getElementById('heroe2Down'), _ServerMatrix[posX].Positions[posY].x*47, _ServerMatrix[posX].Positions[posY].y*47);
+                            break;
+                        case 3://DERECHA
+                            context.drawImage(document.getElementById('heroe2Right'), _ServerMatrix[posX].Positions[posY].x*47, _ServerMatrix[posX].Positions[posY].y*47);
+                            break;
+                    }
+                }
+                else if(_ServerMatrix[posX].Positions[posY].number===3)
+                {
+                    switch (_ServerMatrix[posX].Positions[posY].Orientacion)
+                    {
+                        case 2://IZQUIERDA
+                            context.drawImage(document.getElementById('heroe3Left'), _ServerMatrix[posX].Positions[posY].x*47, _ServerMatrix[posX].Positions[posY].y*47);
+                            break;
+                        case 0://ARRIBA
+                            context.drawImage(document.getElementById('heroe3Up'), _ServerMatrix[posX].Positions[posY].x*47, _ServerMatrix[posX].Positions[posY].y*47);
+                            break;
+                        case 1://ABAJO
+                            context.drawImage(document.getElementById('heroe3Down'), _ServerMatrix[posX].Positions[posY].x*47, _ServerMatrix[posX].Positions[posY].y*47);
+                            break;
+                        case 3://DERECHA
+                            context.drawImage(document.getElementById('heroe3Right'), _ServerMatrix[posX].Positions[posY].x*47, _ServerMatrix[posX].Positions[posY].y*47);
+                            break;
+                    }
+                }
+                else if(_ServerMatrix[posX].Positions[posY].number===4)
+                {
+                    switch (_ServerMatrix[posX].Positions[posY].Orientacion)
+                    {
+                        case 2://IZQUIERDA
+                            context.drawImage(document.getElementById('heroe4Left'), _ServerMatrix[posX].Positions[posY].x*47, _ServerMatrix[posX].Positions[posY].y*47);
+                            break;
+                        case 0://ARRIBA
+                            context.drawImage(document.getElementById('heroe4Up'), _ServerMatrix[posX].Positions[posY].x*47, _ServerMatrix[posX].Positions[posY].y*47);
+                            break;
+                        case 1://ABAJO
+                            context.drawImage(document.getElementById('heroe4Down'), _ServerMatrix[posX].Positions[posY].x*47, _ServerMatrix[posX].Positions[posY].y*47);
+                            break;
+                        case 3://DERECHA
+                            context.drawImage(document.getElementById('heroe4Right'), _ServerMatrix[posX].Positions[posY].x*47, _ServerMatrix[posX].Positions[posY].y*47);
+                            break;
+                    }
+                }                
             }
             else if(_ServerMatrix[posX].ID === BULLET){
                 context.drawImage(document.getElementById('bala'), _ServerMatrix[posX].Positions[posY].x*47, _ServerMatrix[posX].Positions[posY].y*47);
@@ -226,6 +282,7 @@ function PaintObject(data,sprite)
 socket.on('FirstConnection',function(data) {
 	
 	_PLAYER_ID = data.PLAYER_ID;
+    document.getElementById('txtTankHeroe').textContent = data.tankNum;
 });
 
 
@@ -245,13 +302,24 @@ socket.on('GameChange',function(data){
 });
 
 socket.on('GameOver',function(data){
-    swal(
-        'Game is Over!!',
-        'Good bye!!',
-        'error'
-    );
+    if(data.result)
+    {
+        swal(
+            'Game is Over!!',
+            'Good bye!!',
+            'error'
+        );
+    }
+    else{
+        swal(
+            'You won!!',
+            'Congratulations!!',
+            'success'
+        );
+    }
+    
     socket.emit('disconnect',null);
-    //juegoNormal.pause();
+    juegoNormal.pause();
 });
 
 
@@ -310,5 +378,10 @@ document.onkeydown = function (e) {
     if(action.shoot) socket.emit('PlayerShooted',{playerID:_PLAYER_ID});
     else if(action.orientacion !== -1) socket.emit('PlayerMoved',{moveProperties : action, playerID: _PLAYER_ID});
 };
+
+function init()
+{
+    inicio.play();juegoNormal.play();
+}
 
 /*--------------------------------------------------------*/

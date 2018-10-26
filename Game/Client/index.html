@@ -10,7 +10,7 @@
         <link href="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/6.11.5/sweetalert2.css">
     </head>
     <br>
-    <body style="background: linear-gradient(#F7BE81,#A4A4A4,#A4A4A4,#F7BE81); border-color: red" >
+    <body style="background: linear-gradient(#F7BE81,#A4A4A4,#A4A4A4,#F7BE81); border-color: red" onload="init()">
 
     <div hidden>
         <img id="empty" src="img/empty.png">
@@ -60,8 +60,17 @@
     <!--VENTANA DEL JUEGO-->
     <div class="container" >
         <div class="row">
-            
-            <div class="col-xs-12">
+            <div class="col-xs-2">
+                <img src="img/tankUp.png" width="50px" height="50px"> <br> <label>Tank Heroe 1</label> <br> <hr>
+                <img src="img/tank2Up.png" width="50px" height="50px"> <br><label>Tank Heroe 2</label> <br> <hr>
+                <img src="img/tank3Up.png" width="50px" height="50px"> <br><label>Tank Heroe 3</label> <br> <hr>
+                <img src="img/tank4Up.png" width="50px" height="50px"> <br><label>Tank Heroe 4</label> <br> <hr>
+                
+                
+                <label><b>Eres el tank: </b><span id="txtTankHeroe"></span></label> <br>
+                <label><b>Vidas Restante: </b><span id="txtVidas">3</span></label> <br>
+            </div>
+            <div class="col-xs-10">
                 <div class="container">
                     <div align=center>
                         <canvas id="scene" width="705" height="705" style="background-color: black; margin: auto;">Su navegador no soporta canvas</canvas>

@@ -2,15 +2,16 @@ const index = require('./index');
 const espacioLibre = require('./espacioLibre');
 
 class tankHeroe{
-    constructor(x,y,parteLogica,HEROE, userid){
+    constructor(x,y,parteLogica,HEROE, userid,numofplayer){
         this._posX = x;
         this._posY = y;
         this.coordinador = parteLogica;
         this._disparo = false; //DISPARÓ!
-        this._vidas = 1;
+        this._vidas = 3;
         this._orientacion = 0;//ARRIBA, VA CAMBIAR CONFORME SE MUEVE
         this._ID = HEROE;
         this._UserID = userid;
+        this._NumOfPlayer = numofplayer;
     }
 
     get getID(){
@@ -44,6 +45,11 @@ class tankHeroe{
     get getUserID()
     {
         return this._UserID;
+    }
+
+    get getNumOfPlayer()
+    {
+        return this._NumOfPlayer;
     }
 
     disparar(){
