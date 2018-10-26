@@ -52,7 +52,7 @@ var ARRIBA = 0; var ABAJO = 1; var IZQUIERDA = 2; var DERECHA = 3;
 
 // Threats
 var intervalo; var hiloEnemy1, hiloEnemy2y3, hiloBalasEnemy1;  var mainThread;
-var EnemyList2y3 = [], EnemyList1 = [], bulletList = []; var disparoEnemigo; 
+var EnemyList2y3 = [], EnemyList1 = [], bulletList = []; var disparoEnemigo; var current_enemies=0;
 var intervaloCreateEnemy;
 
 var heroe;//INSTANCIA DEL HEROE GLOBAL -- test
@@ -237,25 +237,29 @@ function addNewEnemy(){
     let posX = generarPosicionAleatoria();
     let posY = generarPosicionAleatoria();
     let tankType = Math.floor((Math.random() * 3) + 1); // numero random (1, 2, 3)
-    if(getObject(posX,posY).espacioLibre()){//BARRERA
-        if(tankType === 1)
-        {
-            setObject(posX,posY, new tankEnemy1(posX,posY,1,this,ENEMY1));// listo
-            EnemyList1.push(getObject(posX,posY));
-        }
-        else if(tankType === 2){
-            setObject(posX,posY, new tankEnemy2(posX,posY,3,this, ENEMY2));
-            EnemyList2y3.push(getObject(posX,posY));
+    if(totalEnemigos < 6)
+    {
+        if(getObject(posX,posY).espacioLibre())
+        {//BARRERA
+            if(tankType === 1)
+            {
+                setObject(posX,posY, new tankEnemy1(posX,posY,1,this,ENEMY1));// listo
+                EnemyList1.push(getObject(posX,posY));
+            }
+            else if(tankType === 2){
+                setObject(posX,posY, new tankEnemy2(posX,posY,3,this, ENEMY2));
+                EnemyList2y3.push(getObject(posX,posY));
+            }
+            else{
+                setObject(posX,posY, new tankEnemy3(posX,posY, this,ENEMY3,2));
+                EnemyList2y3.push(getObject(posX,posY));
+            }
+            totalEnemigos++;
+            //document.getElementById("txtTanksEnemy").textContent = totalEnemigos;
         }
         else{
-            setObject(posX,posY, new tankEnemy3(posX,posY, this,ENEMY3,2));
-            EnemyList2y3.push(getObject(posX,posY));
+            addNewEnemy();
         }
-        totalEnemigos++;
-        //document.getElementById("txtTanksEnemy").textContent = totalEnemigos;
-    }
-    else{
-        addNewEnemy();
     }
 }
 
@@ -661,7 +665,7 @@ hiloEnemy2y3 = setInterval(() => {
     }
 },4500); 
 
-//intervaloCreateEnemy = setInterval(addNewEnemy, 15000); // actualiza enemigos cada 15 segundos
+intervaloCreateEnemy = setInterval(addNewEnemy, 15000); // actualiza enemigos cada 15 segundos
 /****************************************/
 
 /*--------------------------------------*/
