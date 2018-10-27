@@ -69,6 +69,7 @@ class tankHeroe{
             this._posX = 7;this._posY = 13;
             this._orientacion = 0;
             index.setObject(this._posX,this._posY,this);
+            index.bajarVidaTank(this._UserID,this._vidas);
         }
         else if(this._vidas === 0){
             index.UserDied(this._UserID);

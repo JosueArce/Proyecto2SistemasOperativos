@@ -62,6 +62,8 @@ var ENEMY2 = 7; var ENEMY3 = 8;
 
 var _PLAYER_ID = "";// Will be setted by the server after client connects
 
+var _GameState = true;// allows to know when the games is over or not
+
 /*--------------------------------------------------------*/
 
 
@@ -288,14 +290,14 @@ socket.on('FirstConnection',function(data) {
 
 
 // If a user disconnects by some reason this event will be  triggered
-socket.on('UserDisconnected',function(data){
+/*socket.on('UserDisconnected',function(data){
 	swal(
         'RIP!',
         'Better luck next!',
         'error'
     );
     //juegoNormal.pause();
-});
+});*/
 
 // Runs everytime server detects a new change in the main logic matrix
 socket.on('GameChange',function(data){
@@ -319,9 +321,13 @@ socket.on('GameOver',function(data){
             'success'
         );
     }
+    _GameState = false;
     juegoNormal.pause();
 });
 
+socket.on('UpdateLifes',function(data){
+    document.getElementById('txtVidas').textContent = data.lifes;
+});
 
 socket.on('PlaySound',function(data){
     switch(data.sound)
@@ -357,26 +363,30 @@ socket.on('PlaySound',function(data){
 });
 
 document.onkeydown = function (e) {
-	var action = {orientacion:-1,shoot:false}
-    switch (e.keyCode) {
-        case 32://BARRA ESPACIADORA
-            action.shoot = true; 
-            break;
-        case 37://IZQUIERDA
-        	 action.orientacion = IZQUIERDA;
-            break;
-        case 38://ARRIBA
-			 action.orientacion = ARRIBA;
-            break;
-        case 39://DERECHA
-				 action.orientacion = DERECHA;
-            break;
-        case 40://ABAJO
-				 action.orientacion = ABAJO;
-            break;
+    if(_GameState)
+    {
+        var action = {orientacion:-1,shoot:false}
+        switch (e.keyCode) {
+            case 32://BARRA ESPACIADORA
+                action.shoot = true; 
+                break;
+            case 37://IZQUIERDA
+                 action.orientacion = IZQUIERDA;
+                break;
+            case 38://ARRIBA
+                 action.orientacion = ARRIBA;
+                break;
+            case 39://DERECHA
+                     action.orientacion = DERECHA;
+                break;
+            case 40://ABAJO
+                     action.orientacion = ABAJO;
+                break;
+        }
+        if(action.shoot) socket.emit('PlayerShooted',{playerID:_PLAYER_ID});
+        else if(action.orientacion !== -1) socket.emit('PlayerMoved',{moveProperties : action, playerID: _PLAYER_ID});
     }
-    if(action.shoot) socket.emit('PlayerShooted',{playerID:_PLAYER_ID});
-    else if(action.orientacion !== -1) socket.emit('PlayerMoved',{moveProperties : action, playerID: _PLAYER_ID});
+	
 };
 
 function init()

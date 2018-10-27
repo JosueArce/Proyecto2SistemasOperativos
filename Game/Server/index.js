@@ -480,7 +480,7 @@ function DeleteTank(userID)
     {
        if(playersOnline[index].getID === userID)
        {
-            setObject(playersOnline[index].getPosX,playersOnline[index].getPosY, new espacioLibre(this,EMPTYSPACE));
+            setObject(playersOnline[index].getTank.getPosX,playersOnline[index].getTank.getPosY, new espacioLibre(this,EMPTYSPACE));
             playersOnline.splice(index,1);
             GameChanged = true;
        }
@@ -624,6 +624,7 @@ function emitSound(sound)
 
 function UserDied(userid)
 {
+    console.log(userid);
     RemoveNumberPlayer(getUserHeroeTank(userid).getNumOfPlayer);
     DeleteTank(userid);
     GameChanged = true;
@@ -646,6 +647,12 @@ function RemoveNumberPlayer(num)
     else if(num===3) J3 = false;
     else if(num===4) J4 = false;;
 }
+
+function bajarVidaTank(userid,vidas)
+{
+    io.to(userid).emit('UpdateLifes', { lifes : vidas});
+}
+
 
 /*--------------THREADS-----------------*/
 mainThread = setInterval(() => {
@@ -716,9 +723,9 @@ io.on('connection', function(socket){
         if(getUserHeroeTank(socket.id) != undefined)
         {
             RemoveNumberPlayer(getUserHeroeTank(socket.id).getNumOfPlayer);DeleteTank(socket.id);
-        }        		
+        }        	
 		console.log(socket.id + ' disconnected!' + " #: "+playersOnline.length);
-        socket.emit('UserDisconnected', {msg:null});
+        //socket.emit('UserDisconnected', {msg:null});
 	});
 });
 
@@ -740,4 +747,5 @@ module.exports.emitSound = emitSound; module.exports.GameChanged = GameChanged;
 module.exports.RemoveBulletsMatrix = RemoveBulletsMatrix; module.exports.borrarEnemigo = borrarEnemigo;
 module.exports.RestarObjetivos = RestarObjetivos; module.exports.UserDied = UserDied;
 module.exports.SearchUsers = SearchUsers; module.exports.dispararHeroe = dispararHeroe;
+module.exports.bajarVidaTank = bajarVidaTank;
 /*--------------------------------------*/
