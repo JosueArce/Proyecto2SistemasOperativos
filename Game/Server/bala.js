@@ -43,6 +43,8 @@
     }
     moverBala(orientacion){
         let solicitud;
+        index.setObject(this._posX,this._posY,new espacioLibre(this._coordinador,index.directions[4]));
+        index.GameChanged = true;
         if(orientacion === index.directions[0]){
             this._orientacion = index.directions[0];
             solicitud = index.getObject(this._posX,this._posY-1); // objeto siguiente hacia arriba
@@ -153,15 +155,20 @@
                 index.emitSound('balaPared');
             }
         }
+        //index.setObject(this._posX,this._posY,new espacioLibre(this._coordinador,index.directions[4]));
+        index.GameChanged = true;
     }
 
     run(){
-        while(this._estadoBala){
-            this.moverBala(this._orientacion);
-
-            index.GameChanged = true;
-        }
-        index.RemoveBulletsMatrix(this.getID);
+        /*while(this._estadoBala){
+        }*/
+        var self = this;
+        var temp = setInterval(function(){
+            self.moverBala(self._orientacion);
+            
+            if(!self._estadoBala)clearInterval(temp);
+        },500);
+        //index.RemoveBulletsMatrix(this.getID);
 
     }
 

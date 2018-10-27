@@ -265,15 +265,19 @@ function addNewEnemy(){
 
 // Takes out bullet linked to an user from the matrix
 function RemoveBulletsMatrix(tanke) {
-    for(let x = 0; x < _matrixSize; x++){
-        for(let y = 0; y < _matrixSize; y++){
-            if(getObject(x,y).getID === tanke){
-                setObject(x,y,new espacioLibre(this,EMPTYSPACE));
-                sleep(10000);
-                GameChanged = true;
+    var state = true;
+    var temp = setTimeout(function(){
+        for(let x = 0; x < _matrixSize; x++){
+            for(let y = 0; y < _matrixSize; y++){
+                if(getObject(x,y).getID === tanke){
+                    setObject(x,y,new espacioLibre(this,EMPTYSPACE));
+                    //sleep(10000);
+                    GameChanged = true;
+                }
             }
         }
-    }
+        clearTimeout(temp);
+    },50);
 }
 
 // Enemies search for users around the matrix
@@ -332,6 +336,15 @@ function getUserHeroeTank(userid) {
 	}
 }
 
+//Gets an specific ID
+function getUserHeroe(userid) {
+
+    for(var index = 0; index < playersOnline.length;index++)
+    {
+        if(playersOnline[index].getID == userid)
+            return playersOnline[index];
+    }
+}
 
 // Distribuite the positions depending of the object
 function TransformArrayToJSONAux(objectID)
@@ -481,7 +494,6 @@ function getRandomUser() {
 
 // Allows the user to shoot
 function dispararHeroe(posX,posY,pertenece,orientacion) {
-    console.log(posX,posY,pertenece,orientacion);
     emitSound("disparoAHeroe");
     if (orientacion === ARRIBA) {
         if (getObject(posX,posY-1)._ID === EMPTYSPACE) {
@@ -612,7 +624,9 @@ function emitSound(sound)
 
 function UserDied(userid)
 {
+    RemoveNumberPlayer(getUserHeroeTank(userid).getNumOfPlayer);
     DeleteTank(userid);
+    GameChanged = true;
     io.to(userid).emit('GameOver', { result : true});
     emitSound("muerteHeroe");
 }
@@ -645,7 +659,7 @@ mainThread = setInterval(() => {
         io.sockets.emit('GameOver',{result:true});
     }
     else if(CheckGameState() === 2) io.sockets.emit('GameOver',{result:false});
-},1000);
+},500);
 
 hiloEnemy1 = setInterval(() => {
     for(let i = 0; i < EnemyList1.length;i++){
@@ -654,7 +668,7 @@ hiloEnemy1 = setInterval(() => {
             EnemyList1[i].dispararEnemy(playersOnline);
         GameChanged = true;
     }
-},4000); // los enemigos se mueven y disparan cada 0.3 segundos
+},1000); // los enemigos se mueven y disparan cada 0.3 segundos
 
 hiloEnemy2y3 = setInterval(() => {
     for(let i = 0; i < EnemyList2y3.length;i++){
@@ -663,7 +677,7 @@ hiloEnemy2y3 = setInterval(() => {
             EnemyList2y3[i].dispararEnemy(playersOnline);
         GameChanged = true;
     }
-},4500); 
+},1500); 
 
 intervaloCreateEnemy = setInterval(addNewEnemy, 15000); // actualiza enemigos cada 15 segundos
 /****************************************/
@@ -694,13 +708,15 @@ io.on('connection', function(socket){
 	});
 
     socket.on('PlayerShooted',function(data){
-        var instance = getUserHeroe(data.playerID);
+        var instance = getUserHeroeTank(data.playerID);
         dispararHeroe(instance.getPosX,instance.getPosY,BALAHEROE,instance.getOrientacion);
     });
 
 	socket.on('disconnect',function(){
-        RemoveNumberPlayer(getUserHeroeTank(socket.id).getNumOfPlayer);
-		DeleteTank(socket.id);
+        if(getUserHeroeTank(socket.id) != undefined)
+        {
+            RemoveNumberPlayer(getUserHeroeTank(socket.id).getNumOfPlayer);DeleteTank(socket.id);
+        }        		
 		console.log(socket.id + ' disconnected!' + " #: "+playersOnline.length);
         socket.emit('UserDisconnected', {msg:null});
 	});

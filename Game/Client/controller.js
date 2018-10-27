@@ -136,6 +136,7 @@ function PaintMatrix(_ServerMatrix)
                 context.drawImage(document.getElementById('Objetivo2'), _ServerMatrix[posX].Positions[posY].x*47, _ServerMatrix[posX].Positions[posY].y*47);
             }
             else if(_ServerMatrix[posX].ID === HEROE){
+                console.log("ENTRÉ!");
                 if(_ServerMatrix[posX].Positions[posY].number===1)
                 {
                     switch (_ServerMatrix[posX].Positions[posY].Orientacion)
@@ -309,6 +310,7 @@ socket.on('GameOver',function(data){
             'Good bye!!',
             'error'
         );
+
     }
     else{
         swal(
@@ -317,8 +319,6 @@ socket.on('GameOver',function(data){
             'success'
         );
     }
-    
-    socket.emit('disconnect',null);
     juegoNormal.pause();
 });
 
